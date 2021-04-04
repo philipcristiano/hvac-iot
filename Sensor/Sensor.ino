@@ -108,7 +108,7 @@ void setup()
   // Disable RF module until we need it
   pinMode(RFM69_CS, OUTPUT);
   disable_radio_spi();
-  
+
   // Start display
   display.begin(THINKINK_MONO);
   Serial.println("Start display write");
@@ -136,7 +136,7 @@ void setup()
     while (1) delay(1);
   }
 
-  
+
   SHT40_ID = sht4.readSerial();
   SHT40_ID_short = SHT40_ID;
   sht4.setPrecision(SHT4X_HIGH_PRECISION);
@@ -178,10 +178,33 @@ void setup()
   Serial.print("RFM69 radio @");  Serial.print((int)RF69_FREQ);  Serial.println(" MHz");
 }
 
-
 // Dont put this on the stack:
 uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
 uint8_t data[] = "  OK";
+
+
+// RF Message Table
+//  130 -> uint32_t - Sensor ID
+//  131 -> uint32_t - temp
+
+void write_radio_packet(uint8_t *pkt, uint32_t ID, sensors_event_t *temp){
+    pkt[0] = (uint8_t) 128;
+
+    pkt[1] = (uint8_t) 130;
+    write_int32(&pkt[2], ID);
+
+    pkt[6] = (uint8_t) 131;
+    write_int32(&pkt[7], temp->temperature);
+}
+
+
+void write_int32(uint8_t *pkt, uint32_t val) {
+    buf[0] = val;
+    buf[1] = val >> 8;
+    buf[2] = val >> 16;
+    buf[3] = val >> 24;
+}
+
 
 void loop() {
   // Sleep mode was entered at the end of the loop, make sure things are started up again
@@ -216,7 +239,9 @@ void loop() {
 
   char radiopacket[64];
   char msg[64] = "All OK!";
-  snprintf(radiopacket, sizeof(radiopacket), "sensor_reading tc=%f,batv=%f,rh=%f", temp.temperature, measured_vbat, humidity.relative_humidity);
+  write_radio_packet((uint8_t*)radiopacket, SHT40_ID, &temp);
+  //write_radio_packet((uint8_t *)&radiopacket, SHT40_ID, &temp, &humidity, measured_vbat);
+  // snprintf(radiopacket, sizeof(radiopacket), "sensor_reading tc=%f,batv=%f,rh=%f", temp.temperature, measured_vbat, humidity.relative_humidity);
   Serial.print("Sending "); Serial.println(radiopacket);
   Serial.print("Size "); Serial.println(strlen(radiopacket));
   enable_radio_spi();
@@ -257,11 +282,11 @@ void loop() {
   // If we need to update, and haven't updated recently / at first, then update!
   if ( LOOPS_SINCE_DISPLAY_UPDATE >= LOOPS_BEFORE_DISPLAY_UPDATE) {
     write_info(temp, humidity, measured_vbat, SHT40_ID, msg);
-  } else {  
+  } else {
    Serial.println("Display not updating");
   }
 
-  
+
   Serial.end();
   digitalWrite(LED, LOW);
   //delay(SLEEP_PER_LOOP);
@@ -271,6 +296,7 @@ void loop() {
   Serial.begin(115200);
 
 }
+
 
 bool info_sig_change(sensors_event_t temp, sensors_event_t humidity, float v_bat, char *msg) {
   if (abs(temp.temperature - CACHE_TEMP) > .25) {
