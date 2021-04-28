@@ -228,11 +228,6 @@ void loop() {
   Serial.print("Temperature: "); Serial.print(temp.temperature); Serial.println(" degrees C");
   Serial.print("Humidity: "); Serial.print(humidity.relative_humidity); Serial.println("% rH");
 
-  if (has_sgp30) {
-    sgp.setHumidity(getAbsoluteHumidity(temp.temperature, humidity.relative_humidity));
-    tvoc = sgp.TVOC;
-    ecO2 = sgp.eCO2;
-  }
   Serial.print("Read duration (ms): ");
   Serial.println(timestamp);
   // Start radio sending
