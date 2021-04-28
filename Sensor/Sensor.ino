@@ -186,15 +186,28 @@ uint8_t data[] = "  OK";
 // RF Message Table
 //  130 -> uint32_t - Sensor ID
 //  131 -> uint32_t - temp
+//  132 -> float - relative humidity
+//  132 -> float - battery voltage
 
-void write_radio_packet(uint8_t *pkt, uint32_t ID, sensors_event_t *temp){
+void write_radio_packet(uint8_t *pkt, uint32_t ID, sensors_event_t *temp, sensors_event_t *humidity, float battery){
     pkt[0] = (uint8_t) 128;
 
-    pkt[1] = (uint8_t) 130;
-    write_int32(&pkt[2], ID);
+    int pos = 1;
+    pkt[pos] = (uint8_t) 130;
+    write_int32(&pkt[pos+1], ID);
+    pos = pos + 1 + 4;
 
-    pkt[6] = (uint8_t) 131;
-    write_int32(&pkt[7], temp->temperature);
+    pkt[pos] = (uint8_t) 131;
+    write_int32(&pkt[pos+1], temp->temperature);
+    pos = pos + 1 + 4;
+
+    pkt[pos] = (uint8_t) 132;
+    write_float(&pkt[pos+1], humidity->relative_humidity);
+    pos = pos + 1 + 4;
+
+    pkt[pos] = (uint8_t) 133;
+    write_float(&pkt[pos+1], battery);
+    pos = pos + 1 + 4;
 }
 
 
@@ -203,6 +216,10 @@ void write_int32(uint8_t *pkt, uint32_t val) {
     buf[1] = val >> 8;
     buf[2] = val >> 16;
     buf[3] = val >> 24;
+}
+
+void write_float(uint8_t *pkt, float val) {
+    memcpy(pkt, &val, sizeof(float));
 }
 
 
@@ -234,7 +251,7 @@ void loop() {
 
   char radiopacket[64];
   char msg[64] = "All OK!";
-  write_radio_packet((uint8_t*)radiopacket, SHT40_ID, &temp);
+  write_radio_packet((uint8_t*)radiopacket, SHT40_ID, &temp, &humidity, measured_vbat);
   //write_radio_packet((uint8_t *)&radiopacket, SHT40_ID, &temp, &humidity, measured_vbat);
   // snprintf(radiopacket, sizeof(radiopacket), "sensor_reading tc=%f,batv=%f,rh=%f", temp.temperature, measured_vbat, humidity.relative_humidity);
   Serial.print("Sending "); Serial.println(radiopacket);
