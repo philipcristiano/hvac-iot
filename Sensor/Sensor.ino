@@ -14,7 +14,7 @@
 /************ Radio Setup ***************/
 
 // Change to 434.0 or other frequency, must match RX's freq!
-#define RF69_FREQ 915.0
+#define RF69_FREQ 905.0
 
 // Where to send packets to!
 #define DEST_ADDRESS   1
