@@ -23,9 +23,11 @@ jobs:
     - name: Compile Sensor
       run: |
         arduino-cli config set library.enable_unsafe_install true
-        arduino-cli lib install --git-url https://github.com/adafruit/RadioHead.git
+        arduino-cli lib install --git-url https://github.com/philipcristiano/RadioHead.git
         arduino-cli lib install "Adafruit EPD"
+        arduino-cli lib install "Adafruit BMP280 Library"
         arduino-cli lib install "Adafruit SGP30 Sensor"
+        arduino-cli lib install "Adafruit SCD30"
         arduino-cli lib install "Adafruit SHT4x Library"
         arduino-cli lib install "Arduino Low Power"
         arduino-cli compile --fqbn adafruit:samd:adafruit_feather_m0 Sensor

@@ -6,11 +6,8 @@ IoT system for HVAC control
 
 Get Arduino CLI
 
+See `.github/workflows/Arduino_Sensor.yml` for the most up to date steps
 
-```
-arduino-cli core update-index
-arduino-cli core update-index --additional-urls https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
-```
 
 ### Compile
 
