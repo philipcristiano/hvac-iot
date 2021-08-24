@@ -329,6 +329,21 @@ void bin_rf_msg_to_data(JsonDocument &doc, uint8_t sid, int rssi, char *rf_msg, 
       doc["data"]["mBar"] = read_float(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 5;
       pos = pos + 5;      
+    }  
+    else if (type == 141) {
+      doc["data"]["pm10"] = read_int16(&rf_msg[pos+1]);
+      LenRemaining = LenRemaining - 3;
+      pos = pos + 3;      
+    }
+    else if (type == 142) {
+      doc["data"]["pm25"] = read_int16(&rf_msg[pos+1]);
+      LenRemaining = LenRemaining - 3;
+      pos = pos + 3;      
+    }
+    else if (type == 143) {
+      doc["data"]["pm100"] = read_int16(&rf_msg[pos+1]);
+      LenRemaining = LenRemaining - 3;
+      pos = pos + 3;      
     }
     else {
       Serial.println("Unknown type, skipping rest of message");
