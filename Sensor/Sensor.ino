@@ -241,6 +241,10 @@ uint8_t data[] = "  OK";
 //  135 -> uint16_t - co2 concentration
 //  136 -> float - pressure mbar
 
+//  141 -> uint16_t - particle  1.0 standard
+//  142 -> uint16_t - particle  2.5 standard
+//  143 -> uint16_t - particle  10 standard
+
 int start_radio_packet(uint8_t *pkt, uint32_t ID) {
     pkt[0] = (uint8_t) 128;
 
@@ -395,6 +399,10 @@ void loop() {
           Serial.print(F("Particles > 5.0um / 0.1L air:")); Serial.println(pm_data.particles_50um);
           Serial.print(F("Particles > 10 um / 0.1L air:")); Serial.println(pm_data.particles_100um);
           Serial.println(F("---------------------------------------"));
+          
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 141, pm_data.pm10_standard);
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 142, pm_data.pm25_standard);
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 143, pm_data.pm100_standard);
 
       } else {
         Serial.println("Could not read PM25AQI");
