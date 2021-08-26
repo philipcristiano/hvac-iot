@@ -41,4 +41,5 @@ jobs:
         arduino-cli lib install "ArduinoJson"
         arduino-cli lib install "Adafruit SleepyDog Library"
         arduino-cli lib install "Arduino Low Power"
+        arduino-cli lib install "Ethernet"
         arduino-cli compile --fqbn adafruit:samd:adafruit_feather_m0 Hub
