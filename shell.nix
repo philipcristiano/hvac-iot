@@ -3,8 +3,8 @@ let
   releasedPkgs = sysPkg.fetchFromGitHub {
     owner = "NixOS";
     repo = "nixpkgs";
-    rev = "20.09";
-    sha256 = "1wg61h4gndm3vcprdcg7rc4s1v3jkm5xd7lw8r2f67w502y94gcy";
+    rev = "21.05";
+    sha256 = "1ckzhh24mgz6jd1xhfgx0i9mijk6xjqxwsshnvq789xsavrmsc36";
   };
   stdenv = released_pkgs.stdenv;
   released_pkgs = import releasedPkgs {};
@@ -12,6 +12,7 @@ let
 in stdenv.mkDerivation {
   name = "env";
   buildInputs = [ released_pkgs.gnumake
+                  released_pkgs.arduino-cli
                   released_pkgs.wget
                 ];
   shellHook = ''

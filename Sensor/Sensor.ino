@@ -79,6 +79,11 @@ bool HAS_SCD30;
 Adafruit_BMP280 bmp; // I2C
 bool HAS_BMP280;
 
+/************ PM25AQI Setup ***************/
+#include "Adafruit_PM25AQI.h"
+Adafruit_PM25AQI pm25aqi = Adafruit_PM25AQI();
+bool HAS_PM25AQI;
+
 /************ Battery Setup ***************/
 #define SENSOR_VBATPIN A4
 #define FEATHER_VBATPIN A7
@@ -173,6 +178,15 @@ void setup()
     HAS_SCD30 = false;
   }
 
+  if (pm25aqi.begin_I2C()) {
+     HAS_PM25AQI = true;
+     Serial.println("Found PM25AQI sensor");
+
+  } else {
+     HAS_PM25AQI = false;
+     Serial.println("Did not find PM25AQI sensor");
+  }
+
   if (bmp.begin()) {
     Serial.println("Found BMP280 sensor");
     HAS_BMP280 = true;
@@ -226,6 +240,10 @@ uint8_t data[] = "  OK";
 //  134 -> uint16_t - tvoc
 //  135 -> uint16_t - co2 concentration
 //  136 -> float - pressure mbar
+
+//  141 -> uint16_t - particle  1.0 standard
+//  142 -> uint16_t - particle  2.5 standard
+//  143 -> uint16_t - particle  10 standard
 
 int start_radio_packet(uint8_t *pkt, uint32_t ID) {
     pkt[0] = (uint8_t) 128;
@@ -354,6 +372,41 @@ void loop() {
         Serial.println("No SCD30 data");
       }
     }
+  }
+
+  if (HAS_PM25AQI) {
+      PM25_AQI_Data pm_data;
+      if (pm25aqi.read(&pm_data)) {
+          Serial.println("AQI reading success");
+
+          Serial.println();
+          Serial.println(F("---------------------------------------"));
+          Serial.println(F("Concentration Units (standard)"));
+          Serial.println(F("---------------------------------------"));
+          Serial.print(F("PM 1.0: ")); Serial.print(pm_data.pm10_standard);
+          Serial.print(F("\t\tPM 2.5: ")); Serial.print(pm_data.pm25_standard);
+          Serial.print(F("\t\tPM 10: ")); Serial.println(pm_data.pm100_standard);
+          Serial.println(F("Concentration Units (environmental)"));
+          Serial.println(F("---------------------------------------"));
+          Serial.print(F("PM 1.0: ")); Serial.print(pm_data.pm10_env);
+          Serial.print(F("\t\tPM 2.5: ")); Serial.print(pm_data.pm25_env);
+          Serial.print(F("\t\tPM 10: ")); Serial.println(pm_data.pm100_env);
+          Serial.println(F("---------------------------------------"));
+          Serial.print(F("Particles > 0.3um / 0.1L air:")); Serial.println(pm_data.particles_03um);
+          Serial.print(F("Particles > 0.5um / 0.1L air:")); Serial.println(pm_data.particles_05um);
+          Serial.print(F("Particles > 1.0um / 0.1L air:")); Serial.println(pm_data.particles_10um);
+          Serial.print(F("Particles > 2.5um / 0.1L air:")); Serial.println(pm_data.particles_25um);
+          Serial.print(F("Particles > 5.0um / 0.1L air:")); Serial.println(pm_data.particles_50um);
+          Serial.print(F("Particles > 10 um / 0.1L air:")); Serial.println(pm_data.particles_100um);
+          Serial.println(F("---------------------------------------"));
+          
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 141, pm_data.pm10_standard);
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 142, pm_data.pm25_standard);
+          radiopacketlen = write_radio_uint16_t_msg((uint8_t*)radiopacket, radiopacketlen, (uint8_t) 143, pm_data.pm100_standard);
+
+      } else {
+        Serial.println("Could not read PM25AQI");
+      }
   }
   Serial.print("Sending "); Serial.println(radiopacket);
   Serial.print("Size "); Serial.println(radiopacketlen);
