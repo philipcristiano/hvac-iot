@@ -1146,7 +1146,6 @@
     )
   )
 
-
   (junction (at 266.7 142.24) (diameter 0) (color 0 0 0 0)
     (uuid 10be8c3e-ebce-4746-9679-97c8f8f26cf5)
   )
@@ -1830,10 +1829,10 @@
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
-  (global_label "D9" (shape input) (at 262.89 142.24 180) (fields_autoplaced)
+  (global_label "A4" (shape input) (at 262.89 142.24 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid 4c810b02-835e-44e7-b933-93cdd049afd0)
-    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 257.9974 142.1606 0)
+    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 258.1788 142.1606 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
