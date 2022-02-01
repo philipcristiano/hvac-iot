@@ -74,7 +74,7 @@ void setup()
   // Set a watchdog in case we get stuck somewhere
   Watchdog.enable(10000);
 
-  
+
   // Init and reset RF module
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
@@ -122,7 +122,7 @@ void setup()
     Serial.print("  DHCP assigned IP ");
     Serial.println(Ethernet.localIP());
   }
-  
+
   // MQTT init
   mqtt_client.begin(MQTT_HOST, MQTTEthClient);
   mqtt_client.onMessage(messageReceived);
@@ -188,13 +188,13 @@ void loop() {
       Serial.print(" [RSSI :");
       Serial.print(received_rssi);
       Serial.print("] : ");
-      Serial.println((char*)buf);        
+      Serial.println((char*)buf);
     }
   }
   disable_radio_spi();
   if (received_msg) {
-    char mqtt_msg[1024];   
-    bin_rf_msg_to_data(doc, from, received_rssi, (char*) &buf, len);   
+    char mqtt_msg[1024];
+    bin_rf_msg_to_data(doc, from, received_rssi, (char*) &buf, len);
     serializeJson(doc, mqtt_msg);
     // Reconnect if not connected
     if( !mqtt_client.connected() ){
@@ -231,13 +231,13 @@ void print_eth_status() {
   Serial.println(Ethernet.hardwareStatus());
   Serial.print("Link Status:");
   Serial.println(Ethernet.linkStatus());
-  
+
 }
 
 void mqtt_publish_config(char* data_topic, const char* hex_id) {
       char topic[255];
       sprintf(topic, "homeassistant/sensor/%s_tempc/config", hex_id);
-      char mqtt_msg[1024];    
+      char mqtt_msg[1024];
       StaticJsonDocument<512> doc;
       char name_val[128];
       sprintf(name_val, "hvac-iot temperature %s", hex_id);
@@ -248,13 +248,13 @@ void mqtt_publish_config(char* data_topic, const char* hex_id) {
       doc["value_template"] = "{{value_json.data.temp_c}}";
 
       serializeJson(doc, mqtt_msg);
-      
+
       mqtt_client.publish(topic, mqtt_msg);
       Serial.println("MQTT Publish: ");
       Serial.println(topic);
       Serial.println(mqtt_msg);
 
-      Serial.println(mqtt_client.lastError()); 
+      Serial.println(mqtt_client.lastError());
       print_eth_status();
 }
 
@@ -265,7 +265,8 @@ bool mqtt_publish(String topic, String msg) {
        Serial.println("MQTT NOT Published");
        Serial.println(mqtt_client.lastError());
        print_eth_status();
-    }    
+    }
+    return true;
 }
 
 void bin_rf_msg_to_data(JsonDocument &doc, uint8_t sid, int rssi, char *rf_msg, int LenRemaining) {
@@ -282,7 +283,7 @@ void bin_rf_msg_to_data(JsonDocument &doc, uint8_t sid, int rssi, char *rf_msg, 
    } else {
     doc["type"] = "unknown";
    }
-   
+
    while( LenRemaining > 0 ) {
     type = rf_msg[pos];
     Serial.print("Remaining: ");
@@ -297,64 +298,64 @@ void bin_rf_msg_to_data(JsonDocument &doc, uint8_t sid, int rssi, char *rf_msg, 
       doc["meta"]["id_hex"] = String(id, HEX);
       doc["meta"]["sid"] = String(sid_int8, HEX);
       doc["meta"]["name"] = id_to_name(id);
-      LenRemaining = LenRemaining - 5;  
-      pos = pos + 5;    
+      LenRemaining = LenRemaining - 5;
+      pos = pos + 5;
     }
     else if (type == 131) {
       doc["data"]["temp_c"] = read_float(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 5;
-      pos = pos + 5;      
+      pos = pos + 5;
     }
     else if (type == 132) {
       doc["data"]["rh"] = read_float(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 5;
-      pos = pos + 5;      
+      pos = pos + 5;
     }
     else if (type == 133) {
       doc["data"]["vbat"] = read_float(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 5;
-      pos = pos + 5;      
+      pos = pos + 5;
     }
     else if (type == 134) {
       doc["data"]["tvoc"] = read_int16(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 3;
-      pos = pos + 3;      
+      pos = pos + 3;
     }
     else if (type == 135) {
       doc["data"]["co2"] = read_int16(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 3;
-      pos = pos + 3;      
+      pos = pos + 3;
     }
     else if (type == 136) {
       doc["data"]["mBar"] = read_float(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 5;
-      pos = pos + 5;      
-    }  
+      pos = pos + 5;
+    }
     else if (type == 141) {
       doc["data"]["pm10"] = read_int16(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 3;
-      pos = pos + 3;      
+      pos = pos + 3;
     }
     else if (type == 142) {
       doc["data"]["pm25"] = read_int16(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 3;
-      pos = pos + 3;      
+      pos = pos + 3;
     }
     else if (type == 143) {
       doc["data"]["pm100"] = read_int16(&rf_msg[pos+1]);
       LenRemaining = LenRemaining - 3;
-      pos = pos + 3;      
+      pos = pos + 3;
     }
     else {
       Serial.println("Unknown type, skipping rest of message");
       serializeJsonPretty(doc, Serial);
       return;
     }
-    
+
    }
    serializeJsonPretty(doc, Serial);
    return;
-  
+
 }
 
 String id_to_name(int32_t id) {
@@ -375,8 +376,8 @@ String id_to_name(int32_t id) {
       return String("MasterBedroom");
     default:
       return String("Unknown");
-  }  
-  
+  }
+
 }
 
 int32_t read_int32(char* pChar4)
