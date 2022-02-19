@@ -1,0 +1,22 @@
+name: "KiBot - Preflight only"
+
+on:
+  pull_request:
+    paths:
+      - "*/*.kicad_sch"
+      - "*/*.kicad_pcb"
+      - ".kibot/*.kibot.yaml"
+      - ".github/workflows/*.yml"
+
+jobs:
+  Preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Run KiBot with the preflight script
+      - uses: INTI-CMNB/KiBot@v1
+        with:
+          config: .kibot/preflight.yml
+          schema: thermostat/thermostat.kicad_sch
+          board: thermostat/thermostat.kicad_pcb
