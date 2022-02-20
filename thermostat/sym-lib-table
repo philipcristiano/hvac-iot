@@ -1,4 +1,5 @@
 (sym_lib_table
   (lib (name "12BHC186P1-GR")(type "KiCad")(uri "${KIPRJMOD}/12BHC186P1-GR.kicad_sym")(options "")(descr ""))
   (lib (name "USB")(type "KiCad")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/ul_SS-52400-002/KiCAD/2022-01-09_12-55-39/2022-01-09_12-55-39.kicad_sym")(options "")(descr ""))
+  (lib (name "SWITCH")(type "Legacy")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/ul_EVP-AEBB2A/KiCAD/2022-01-10_19-37-02/2022-01-10_19-37-02.lib")(options "")(descr ""))
 )
