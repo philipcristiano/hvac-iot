@@ -7,7 +7,10 @@ use esp_backtrace as _;
 use esp_hal::clock::CpuClock;
 use log::info;
 
+
+use sht4x_ng::Sht4x;
 use esp_hal::{delay::Delay, main, rmt::Rmt, time::RateExtU32};
+use esp_hal::i2c::master;
 use esp_hal_smartled::{smartLedBuffer, SmartLedsAdapter};
 use smart_leds::{
     brightness, gamma,
@@ -23,7 +26,16 @@ async fn main(spawner: Spawner) {
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
+    let mut i2c = master::I2c::new(
+        peripherals.I2C0,
+        master::Config::default(),
+    ).unwrap()
+    .with_sda(peripherals.GPIO25)
+    .with_scl(peripherals.GPIO11)
+    .into_async();
 
+    let mut delay = embassy_time::Delay;
+    let mut sht40: Sht4x<_, embassy_time::Delay> = Sht4x::new(i2c);
     esp_alloc::heap_allocator!(72 * 1024);
 
     esp_println::logger::init_logger_from_env();
@@ -54,9 +66,12 @@ async fn main(spawner: Spawner) {
         val: 255,
     };
     let mut data;
-    let delay = esp_hal::delay::Delay::new();
+    //let delay = Delay::new();
     loop {
-        info!("Hello world!");
+        let serial = sht40.serial_number(&mut delay).await.unwrap();
+        let measure = sht40.measure(sht4x_ng::Precision::Low, &mut delay).await.unwrap();
+        info!("Hello world! {serial}: {measure:?}");
+
         for hue in 0..=255 {
             color.hue = hue;
             // Convert from the HSV color space (where we can easily transition from one
@@ -67,8 +82,8 @@ async fn main(spawner: Spawner) {
             // that the output it's not too bright.
             led.write(brightness(gamma(data.iter().cloned()), 10))
                 .unwrap();
-            delay.delay_millis(20);
         };
+        Timer::after(Duration::from_secs(1)).await;
         //Timer::after(Duration::from_secs(1)).await;
     }
 
