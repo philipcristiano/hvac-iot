@@ -11,19 +11,11 @@ path = "./src/bin/async_main.rs"
 embedded-io = "0.6.1"
 embedded-io-async = "0.6.1"
 esp-alloc = { version = "0.6.0" }
-esp-backtrace = { version = "0.15.0", features = [
-  "esp32h2",
-  "exception-handler",
-  "panic-handler",
-  "println",
-] }
-esp-hal = { version = "0.23.1", features = ["esp32h2", "unstable"] }
-esp-println = { version = "0.13.0", features = ["esp32h2", "log"] }
+esp-hal = { version = "0.23.1", features = ["bluetooth",  "esp32h2", "unstable"] }
 esp-wifi = { version = "0.12.0", default-features = false, features = [
   "ble",
   "esp-alloc",
   "esp32h2",
-  "log",
   "utils",
 ] }
 heapless = { version = "0.8.0", default-features = false }
@@ -60,6 +52,7 @@ bt-hci = "0.2.0"
 trouble-host = { git = "https://github.com/embassy-rs/trouble.git", version = "0.1.0" }
 embassy-sync = "0.6.2"
 embassy-futures = "0.1.1"
+esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32h2", "log"] }
 
 [profile.dev]
 # Rust debug is too slow.

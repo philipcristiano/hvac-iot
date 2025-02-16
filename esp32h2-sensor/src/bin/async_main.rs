@@ -4,11 +4,11 @@
 use embassy_futures::join::join;
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
-use esp_backtrace as _;
 use esp_hal::clock::CpuClock;
-use log::info;
+//use {defmt_rtt as _}; // global logger
 
 use bt_hci::controller::ExternalController;
+use log::{info};
 
 use sht4x_ng::Sht4x;
 use esp_hal::{delay::Delay, main, rmt::Rmt, time::RateExtU32};
@@ -28,32 +28,23 @@ pub const L2CAP_MTU: usize = 255;
 use trouble_host::prelude::*;
 const BTHOME_SVC_UUID: u16 = 0xFCD2; // BTHome service UUID
 
-// GATT Server definition
-#[gatt_server]
-struct Server {
-    battery_service: BatteryService,
-}
-/// Battery service
-#[gatt_service(uuid = service::BATTERY)]
-struct BatteryService {
-    /// Battery Level
-    #[descriptor(uuid = descriptors::VALID_RANGE, read, value = [0, 100])]
-    #[descriptor(uuid = descriptors::MEASUREMENT_DESCRIPTION, read, value = "Battery Level")]
-    #[characteristic(uuid = characteristic::BATTERY_LEVEL, read, notify, value = 10)]
-    level: u8,
-    #[characteristic(uuid = "408813df-5dd4-1f87-ec11-cdb001100000", write, read, notify)]
-    status: bool,
-}
 
 extern crate alloc;
+
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    info!("{_info}");
+    loop {}
+}
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
     // generator version: 0.2.2
 
+    esp_println::logger::init_logger_from_env();
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
-    let mut i2c = master::I2c::new(
+    let i2c = master::I2c::new(
         peripherals.I2C0,
         master::Config::default(),
     ).unwrap()
@@ -63,26 +54,31 @@ async fn main(spawner: Spawner) {
 
     let mut delay = embassy_time::Delay;
     let mut sht40: Sht4x<_, embassy_time::Delay> = Sht4x::new(i2c);
-    esp_alloc::heap_allocator!(48 * 1024);
+    esp_alloc::heap_allocator!(72 * 1024);
 
-    esp_println::logger::init_logger_from_env();
+    let timer_group0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
+    let timer_group1 = TimerGroup::new(peripherals.TIMG1);
+    //let timer0 = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER);
 
-    let timer0 = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER);
-    esp_hal_embassy::init(timer0.alarm0);
-
-    info!("Embassy initialized!");
-    let timer1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
-    info!("Start wifi init");
-    let init = esp_wifi::init(
-        timer1.timer0,
+    log::info!("Embassy initialized!");
+    log::info!("Start wifi init");
+    let maybe_init = esp_wifi::init(
+        timer_group0.timer0,
         esp_hal::rng::Rng::new(peripherals.RNG),
         peripherals.RADIO_CLK,
-    ).unwrap();
-    info!("wifi config initialized");
+    );
+    let init = if let Ok(i) = maybe_init {
+        log::info!("wifi config initialized");
+        i
+
+    } else {
+        log::info!("wifi init failed");
+        return
+
+    };
+    esp_hal_embassy::init(timer_group1.timer0);
     let freq = 32.MHz();
     let rmt = Rmt::new(peripherals.RMT, freq).unwrap();
-    // TODO: Spawn some tasks
-    let _ = spawner;
 
     info!("Start bluetooth init");
 
@@ -97,19 +93,10 @@ async fn main(spawner: Spawner) {
     let mut resources: HostResources<CONNECTIONS_MAX, L2CAP_CHANNELS_MAX, L2CAP_MTU> = HostResources::new();
     let stack = trouble_host::new(controller, &mut resources).set_random_address(address);
     let Host {
-        mut peripheral, mut runner, ..
+        mut peripheral, runner, ..
     } = stack.build();
     //spawner.must_spawn(ble_task(runner));
 
-    info!("Starting advertising and GATT service");
-    let server = Server::new_with_config(GapConfig::Peripheral(PeripheralConfig {
-        name: "TrouBLE",
-        appearance: &appearance::power_device::GENERIC_POWER_DEVICE,
-    }))
-    .unwrap();
-
-    let name = "Trouble Example";
-    let mut advertiser_data = [0; 31];
 
     // LED
     //
@@ -133,7 +120,7 @@ async fn main(spawner: Spawner) {
         let mut data;
         let serial = sht40.serial_number(&mut delay).await.unwrap();
         let measure = sht40.measure(sht4x_ng::Precision::High, &mut delay).await.unwrap();
-        info!("Hello world! {serial}: {measure:?}");
+        info!("Hello world! {}: {:?}", serial, measure);
         let temp = (measure.temperature_celsius().to_bits() * 100 >> 20) as i16;
         let hum = (measure.humidity_percent().to_bits() * 100 >> 20) as u16;
 
@@ -191,8 +178,9 @@ async fn main(spawner: Spawner) {
             // that the output it's not too bright.
             led.write(brightness(gamma(data.iter().cloned()), 10))
                 .unwrap();
+            Timer::after(Duration::from_millis(10)).await;
         };
-        Timer::after(Duration::from_secs(15)).await;
+        Timer::after(Duration::from_secs(5)).await;
     }}).await;
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/v0.23.1/examples/src/bin
@@ -201,9 +189,8 @@ async fn main(spawner: Spawner) {
 async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) {
     loop {
         if let Err(e) = runner.run().await {
-            #[cfg(feature = "defmt")]
-            let e = defmt::Debug2Format(&e);
-            panic!("[ble_task] error: {:?}", e);
+            //let e = defmt::Debug2Format(&e);
+            info!("[ble_task] error {:?}", e);
         }
     }
 }
