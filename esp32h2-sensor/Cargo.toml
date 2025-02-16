@@ -56,6 +56,10 @@ smart-leds = "0.4.0"
 esp-hal-smartled = { git="https://github.com/esp-rs/esp-hal-community.git", version = "0.14.0", features = ["esp32h2"], ref = "ad75112" }
 sht4x = "0.1.0"
 sht4x-ng = { version = "0.2.2", features = ["async"] }
+bt-hci = "0.2.0"
+trouble-host = { git = "https://github.com/embassy-rs/trouble.git", version = "0.1.0" }
+embassy-sync = "0.6.2"
+embassy-futures = "0.1.1"
 
 [profile.dev]
 # Rust debug is too slow.
