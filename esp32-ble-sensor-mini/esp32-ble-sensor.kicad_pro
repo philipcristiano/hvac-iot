@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.5,
-          "height": 0.85,
-          "width": 0.85
+          "drill": 1.0,
+          "height": 1.7,
+          "width": 1.7
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -107,6 +107,7 @@
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
         "text_height": "warning",
+        "text_on_edge_cuts": "error",
         "text_thickness": "warning",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",
@@ -186,7 +187,10 @@
         }
       ],
       "track_widths": [
-        0.0
+        0.0,
+        0.2,
+        0.3,
+        0.4
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -484,6 +488,23 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.1,
+        "diff_pair_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 12
       }
     ],
     "meta": {
@@ -493,8 +514,24 @@
     "netclass_assignments": null,
     "netclass_patterns": [
       {
-        "netclass": "Default",
+        "netclass": "Power",
         "pattern": "GND"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "+3.3V"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "*VBUS*"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "*VIN*"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "*BT1*"
       }
     ]
   },
@@ -632,7 +669,7 @@
     ],
     [
       "5450845b-570e-422a-8597-439d9cbdf44b",
-      "200ma Power Supply (page 2)"
+      "500ma Power Supply (page 2)"
     ],
     [
       "53c8d859-bbc4-4810-814c-ad11c4902857",
