@@ -1,21 +1,22 @@
 [package]
 edition = "2021"
-name    = "esp32h2-sensor"
+name    = "esp32c6-sensor"
 version = "0.1.0"
 
 [[bin]]
-name = "esp32h2-sensor"
+name = "esp32c6-sensor"
 path = "./src/bin/async_main.rs"
 
 [dependencies]
 embedded-io = "0.6.1"
 embedded-io-async = "0.6.1"
 esp-alloc = { version = "0.6.0" }
-esp-hal = { version = "0.23.1", features = ["bluetooth",  "esp32h2", "unstable"] }
+esp-hal = { version = "0.23.1", features = ["bluetooth",  "esp32c6", "unstable"] }
 esp-wifi = { version = "0.12.0", default-features = false, features = [
   "ble",
   "esp-alloc",
-  "esp32h2",
+  "esp32c6",
+  "log",
   "utils",
 ] }
 heapless = { version = "0.8.0", default-features = false }
@@ -41,23 +42,27 @@ smart-leds-trait  = "0.3.0"
 critical-section = "1.2.0"
 embassy-executor = { version = "0.7.0", features = ["task-arena-size-20480"] }
 embassy-time = { version = "0.4.0", features = ["generic-queue-8"] }
-esp-hal-embassy = { version = "0.6.0", features = ["esp32h2"] }
+esp-hal-embassy = { version = "0.6.0", features = ["esp32c6"] }
 static_cell = { version = "2.1.0", features = ["nightly"] }
 
 smart-leds = "0.4.0"
-esp-hal-smartled = { git="https://github.com/esp-rs/esp-hal-community.git", version = "0.14.0", features = ["esp32h2"], ref = "ad75112" }
+esp-hal-smartled = { git="https://github.com/esp-rs/esp-hal-community.git", version = "0.14.0", features = ["esp32c6"], ref = "ad75112" }
 sht4x = "0.1.0"
 sht4x-ng = { version = "0.2.2", features = ["async"] }
 bt-hci = "0.2.0"
 trouble-host = { git = "https://github.com/embassy-rs/trouble.git", version = "0.1.0" }
 embassy-sync = "0.6.2"
 embassy-futures = "0.1.1"
-esp-println = { version = "0.13.0", features = ["defmt-espflash", "esp32h2", "log"] }
+esp-println = { version = "0.13.0", features = ["esp32c6", "log"] }
+defmt = "0.3.10"
 
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization
 opt-level = "s"
+
+[profile.dev.package.esp-wifi]
+opt-level = 3
 
 [profile.release]
 codegen-units    = 1     # LLVM can perform better optimizations using a single thread

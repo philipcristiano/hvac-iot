@@ -38,7 +38,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 }
 
 #[esp_hal_embassy::main]
-async fn main(spawner: Spawner) {
+async fn main(_spawner: Spawner) {
     // generator version: 0.2.2
 
     esp_println::logger::init_logger_from_env();
@@ -48,8 +48,8 @@ async fn main(spawner: Spawner) {
         peripherals.I2C0,
         master::Config::default(),
     ).unwrap()
-    .with_sda(peripherals.GPIO25)
-    .with_scl(peripherals.GPIO11)
+    .with_scl(peripherals.GPIO4)
+    .with_sda(peripherals.GPIO5)
     .into_async();
 
     let mut delay = embassy_time::Delay;
@@ -63,7 +63,7 @@ async fn main(spawner: Spawner) {
     log::info!("Embassy initialized!");
     log::info!("Start wifi init");
     let maybe_init = esp_wifi::init(
-        timer_group0.timer0,
+        timer_group1.timer0,
         esp_hal::rng::Rng::new(peripherals.RNG),
         peripherals.RADIO_CLK,
     );
@@ -72,11 +72,10 @@ async fn main(spawner: Spawner) {
         i
 
     } else {
-        log::info!("wifi init failed");
-        return
+        panic!("wifi init failed");
 
     };
-    esp_hal_embassy::init(timer_group1.timer0);
+    esp_hal_embassy::init(timer_group0.timer0);
     let freq = 32.MHz();
     let rmt = Rmt::new(peripherals.RMT, freq).unwrap();
 
@@ -87,7 +86,7 @@ async fn main(spawner: Spawner) {
     let bluetooth = peripherals.BT;
     let connector = BleConnector::new(&init, bluetooth);
     let controller: ExternalController<_, 20> = ExternalController::new(connector);
-    let address: Address = Address::random([0xff, 0x8f, 0x1a, 0x05, 0xe4, 0xff]);
+    let address: Address = Address::random([0x00, 0x04, 0x1a, 0x05, 0xe4, 0xfe]);
     info!("Our address = {:?}", address);
 
     let mut resources: HostResources<CONNECTIONS_MAX, L2CAP_CHANNELS_MAX, L2CAP_MTU> = HostResources::new();
@@ -100,15 +99,8 @@ async fn main(spawner: Spawner) {
 
     // LED
     //
-    let led_pin = peripherals.GPIO8;
-    let rmt_buffer = smartLedBuffer!(1);
-    let mut led = SmartLedsAdapter::new(rmt.channel0, led_pin, rmt_buffer);
+    //let led_pin = peripherals.GPIO8;
 
-    let mut color = Hsv {
-        hue: 0,
-        sat: 255,
-        val: 255,
-    };
     //let delay = Delay::new();
     // Buffer for BTHome advertisement data
     let mut adv_data = [0; 31];
@@ -117,13 +109,14 @@ async fn main(spawner: Spawner) {
     let _ = join(ble_task(runner), async {
     loop {
         info!("beginning loop iter");
-        let mut data;
+        //let mut data;
         let serial = sht40.serial_number(&mut delay).await.unwrap();
         let measure = sht40.measure(sht4x_ng::Precision::High, &mut delay).await.unwrap();
         info!("Hello world! {}: {:?}", serial, measure);
-        let temp = (measure.temperature_celsius().to_bits() * 100 >> 20) as i16;
-        let hum = (measure.humidity_percent().to_bits() * 100 >> 20) as u16;
+        let temp = (measure.temperature_milli_celsius() / 10).try_into().unwrap_or(0);
+        let hum = (measure.humidity_milli_percent() / 10 ).try_into().unwrap_or(0);
 
+        info!("temp conversion! {:?}: {:?}", temp, hum);
          // BTHome v2 packet
         let payload = [
             0x40, // BTHome v2, no encryption
@@ -168,18 +161,18 @@ async fn main(spawner: Spawner) {
         }
 
 
-        for hue in 0..=255 {
-            color.hue = hue;
-            // Convert from the HSV color space (where we can easily transition from one
-            // color to the other) to the RGB color space that we can then send to the LED
-            data = [hsv2rgb(color)];
-            // When sending to the LED, we do a gamma correction first (see smart_leds
-            // documentation for details) and then limit the brightness to 10 out of 255 so
-            // that the output it's not too bright.
-            led.write(brightness(gamma(data.iter().cloned()), 10))
-                .unwrap();
-            Timer::after(Duration::from_millis(10)).await;
-        };
+        // for hue in 0..=255 {
+        //     color.hue = hue;
+        //     // Convert from the HSV color space (where we can easily transition from one
+        //     // color to the other) to the RGB color space that we can then send to the LED
+        //     data = [hsv2rgb(color)];
+        //     // When sending to the LED, we do a gamma correction first (see smart_leds
+        //     // documentation for details) and then limit the brightness to 10 out of 255 so
+        //     // that the output it's not too bright.
+        //     led.write(brightness(gamma(data.iter().cloned()), 10))
+        //         .unwrap();
+        //     Timer::after(Duration::from_millis(10)).await;
+        // };
         Timer::after(Duration::from_secs(5)).await;
     }}).await;
 

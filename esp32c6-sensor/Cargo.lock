@@ -525,9 +525,10 @@ dependencies = [
  "esp-hal-procmacros",
  "esp-metadata",
  "esp-riscv-rt",
- "esp32h2",
+ "esp32c6",
  "fugit",
  "instability",
+ "log",
  "nb 1.1.0",
  "paste",
  "portable-atomic",
@@ -572,6 +573,7 @@ dependencies = [
  "darling",
  "document-features",
  "litrs 0.4.1",
+ "object",
  "proc-macro-crate",
  "proc-macro-error2",
  "proc-macro2",
@@ -609,7 +611,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "645e54eb592ca0a3d60213b1695e2a5fc0b51ca6d693c08d6983857224a629ed"
 dependencies = [
  "critical-section",
- "defmt",
  "esp-build",
  "log",
  "portable-atomic",
@@ -648,6 +649,7 @@ dependencies = [
  "fugit",
  "heapless",
  "libm",
+ "log",
  "num-derive",
  "num-traits",
  "portable-atomic",
@@ -663,25 +665,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6b5438361891c431970194a733415006fb3d00b6eb70b3dcb66fd58f04d9b39"
 dependencies = [
  "anyhow",
+ "log",
 ]
 
 [[package]]
-name = "esp32h2"
-version = "0.14.0"
+name = "esp32c6"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a05aafc25d8c68ce504d8025750fc37915a2fc7d2605be3d3b51f8886a43411a"
+checksum = "fd38a7771b65cb640cc4a79324a6301ba4ac3bf2987caca5d3aa34492238fdb9"
 dependencies = [
  "critical-section",
  "vcell",
 ]
 
 [[package]]
-name = "esp32h2-sensor"
+name = "esp32c6-sensor"
 version = "0.1.0"
 dependencies = [
  "bleps",
  "bt-hci",
  "critical-section",
+ "defmt",
  "embassy-executor",
  "embassy-futures",
  "embassy-sync",
@@ -992,6 +996,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "object"
+version = "0.36.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62948e14d923ea95ea2c7c86c71013138b66525b86bdc08d2dcc262bdb497b87"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
