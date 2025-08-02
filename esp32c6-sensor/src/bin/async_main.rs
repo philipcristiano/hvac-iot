@@ -15,14 +15,14 @@ use esp_hal::{delay::Delay, main, rmt::Rmt};
 use esp_hal::{rng::Rng, timer::timg::TimerGroup};
 use esp_wifi::{EspWifiController, ble::controller::BleConnector, init};
 use sht4x_ng::Sht4x;
-//use esp_hal_smartled::{smartLedBuffer, SmartLedsAdapter};
+use esp_hal_smartled::{smart_led_buffer, SmartLedsAdapter};
 use esp_hal::analog::adc::{AdcCalCurve, Attenuation};
 use esp_hal::rtc_cntl::{Rtc, SocResetReason, sleep::TimerWakeupSource};
-//use smart_leds::{
-//    brightness, gamma,
-//    hsv::{hsv2rgb, Hsv},
-//    SmartLedsWrite,
-//};
+use smart_leds::{
+    brightness, gamma,
+    hsv::{hsv2rgb, Hsv},
+    SmartLedsWrite, RGB8
+};
 esp_bootloader_esp_idf::esp_app_desc!();
 const CONNECTIONS_MAX: usize = 1;
 /// Max number of L2CAP channels.
@@ -39,15 +39,6 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-macro_rules! mk_static {
-    ($t:ty,$val:expr) => {{
-        static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-        #[deny(unused_attributes)]
-        let x = STATIC_CELL.uninit().write(($val));
-        x
-    }};
-}
-
 #[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
     // generator version: 0.2.2
@@ -55,6 +46,7 @@ async fn main(_spawner: Spawner) {
     esp_println::logger::init_logger_from_env();
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
+    esp_alloc::heap_allocator!(size: 72 * 1024);
     let i2c = master::I2c::new(peripherals.I2C0, master::Config::default())
         .unwrap()
         .with_scl(peripherals.GPIO7)
@@ -80,7 +72,7 @@ async fn main(_spawner: Spawner) {
     let adc1_value: u16 = adc1.read_oneshot(&mut pin1).unwrap_or_else(|_| 0);
 
     // * 2 for the voltage divider ratio, this should be set somewhere as config or var
-    let batt_voltage: u16 = ((adc1_value as u32) * 2450 / 4095 * 2) as u16;
+    let batt_voltage: u16 = adc1_value * 2;
     log::info!("ADC1 value, battery: {} {}", adc1_value, batt_voltage);
 
     log::info!("Embassy initialized!");
@@ -97,7 +89,6 @@ async fn main(_spawner: Spawner) {
     esp_hal_embassy::init(systimer.alarm0);
     //let freq = esp_hal::time
     //let freq =
-    //let rmt = Rmt::new(peripherals.RMT, freq).unwrap();
 
     info!("Start bluetooth init");
 
@@ -120,7 +111,14 @@ async fn main(_spawner: Spawner) {
 
     // LED
     //
-    //let led_pin = peripherals.GPIO8;
+    use esp_hal::time::Rate;
+    let led_pin = peripherals.GPIO2;
+
+    let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80)).unwrap();
+    let rmt_channel = rmt.channel0;
+    let rmt_buffer = smart_led_buffer!(1);
+
+    let mut led = SmartLedsAdapter::new(rmt_channel, led_pin, rmt_buffer);
 
     //let delay = Delay::new();
     // Buffer for BTHome advertisement data
@@ -161,9 +159,9 @@ async fn main(_spawner: Spawner) {
             AdStructure::encode_slice(
                 &[
                     AdStructure::Flags(LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED),
-                    AdStructure::ServiceUuids16(&[BTHOME_SVC_UUID.to_be_bytes()]),
+                    AdStructure::ServiceUuids16(&[BTHOME_SVC_UUID.to_le_bytes()]),
                     AdStructure::ServiceData16 {
-                        uuid: BTHOME_SVC_UUID.to_be_bytes(),
+                        uuid: BTHOME_SVC_UUID.to_le_bytes(),
                         data: &payload,
                     },
                 ],
@@ -174,6 +172,7 @@ async fn main(_spawner: Spawner) {
             // Stop previous advertisement if any
             info!("Starting advertiser");
             let mut adv_param = trouble_host::advertise::AdvertisementParameters::default();
+            adv_param.tx_power = trouble_host::advertise::TxPower::Plus20dBm;
             adv_param.timeout = Some(Duration::from_secs(1));
             let advertiser = peripheral
                 .advertise(
@@ -189,19 +188,11 @@ async fn main(_spawner: Spawner) {
             } else {
                 info!("[adv] advertise error")
             }
-
-            // for hue in 0..=255 {
-            //     color.hue = hue;
-            //     // Convert from the HSV color space (where we can easily transition from one
-            //     // color to the other) to the RGB color space that we can then send to the LED
-            //     data = [hsv2rgb(color)];
-            //     // When sending to the LED, we do a gamma correction first (see smart_leds
-            //     // documentation for details) and then limit the brightness to 10 out of 255 so
-            //     // that the output it's not too bright.
-            //     led.write(brightness(gamma(data.iter().cloned()), 10))
-            //         .unwrap();
-            //     Timer::after(Duration::from_millis(10)).await;
-            // };
+            let blip_light = RGB8{r: 5, g: 0, b: 0};
+            led.write([blip_light]).unwrap();
+            Timer::after(Duration::from_millis(10)).await;
+            let disable_light = RGB8{r: 0, g: 0, b: 0};
+            led.write([disable_light]).unwrap();
 
             let timer = TimerWakeupSource::new(core::time::Duration::from_secs(29));
             rtc.sleep_deep(&[&timer]);
@@ -210,7 +201,6 @@ async fn main(_spawner: Spawner) {
     })
     .await;
 
-    // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/v0.23.1/examples/src/bin
 }
 
 async fn ble_task<C: Controller, P: PacketPool>(mut runner: Runner<'_, C, P>) {

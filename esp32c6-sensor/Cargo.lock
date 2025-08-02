@@ -584,6 +584,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-hal-smartled"
+version = "0.15.0"
+source = "git+https://github.com/esp-rs/esp-hal-community#955208442e848eb4ff77316fc21488348d1bb1d0"
+dependencies = [
+ "document-features",
+ "esp-hal",
+ "smart-leds-trait",
+]
+
+[[package]]
 name = "esp-metadata"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -733,11 +743,14 @@ dependencies = [
  "esp-bootloader-esp-idf",
  "esp-hal",
  "esp-hal-embassy",
+ "esp-hal-smartled",
  "esp-println",
  "esp-wifi",
  "heapless",
  "log",
  "sht4x-ng",
+ "smart-leds",
+ "smart-leds-trait",
  "smoltcp",
  "static_cell",
  "trouble-host",
@@ -1225,6 +1238,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99d9a13982dcf210057a8a78572b2217b667c3beacbf3a0d8b454f6f82837d38"
 
 [[package]]
+name = "rgb"
+version = "0.8.52"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c6a884d2998352bb4daf0183589aec883f16a6da1f4dde84d8e2e9a5409a1ce"
+dependencies = [
+ "bytemuck",
+]
+
+[[package]]
 name = "riscv"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1335,6 +1357,24 @@ dependencies = [
  "embedded-hal-async",
  "fixed",
  "sensirion-i2c",
+]
+
+[[package]]
+name = "smart-leds"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66df34e571fa9993fa6f99131a374d58ca3d694b75f9baac93458fe0d6057bf0"
+dependencies = [
+ "smart-leds-trait",
+]
+
+[[package]]
+name = "smart-leds-trait"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "edeb89c73244414bb0568611690dd095b2358b3fda5bae65ad784806cca00157"
+dependencies = [
+ "rgb",
 ]
 
 [[package]]
