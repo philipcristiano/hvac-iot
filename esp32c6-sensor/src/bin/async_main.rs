@@ -16,6 +16,8 @@ use esp_wifi::ble::controller::BleConnector;
 use esp_hal::{timer::timg::TimerGroup};
 use esp_hal::i2c::master;
 use esp_hal_smartled::{smartLedBuffer, SmartLedsAdapter};
+use esp_hal::analog::adc::{AdcCalCurve, Attenuation};
+use esp_hal::rtc_cntl::{sleep::TimerWakeupSource, Rtc, SocResetReason};
 use smart_leds::{
     brightness, gamma,
     hsv::{hsv2rgb, Hsv},
@@ -48,17 +50,28 @@ async fn main(_spawner: Spawner) {
         peripherals.I2C0,
         master::Config::default(),
     ).unwrap()
-    .with_scl(peripherals.GPIO4)
-    .with_sda(peripherals.GPIO5)
+    .with_scl(peripherals.GPIO7)
+    .with_sda(peripherals.GPIO6)
     .into_async();
 
     let mut delay = embassy_time::Delay;
+    let mut rtc = Rtc::new(peripherals.LPWR);
     let mut sht40: Sht4x<_, embassy_time::Delay> = Sht4x::new(i2c);
     esp_alloc::heap_allocator!(72 * 1024);
 
     let timer_group0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
     let timer_group1 = TimerGroup::new(peripherals.TIMG1);
     //let timer0 = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER);
+
+    let mut adc1_config = esp_hal::analog::adc::AdcConfig::new();
+    let analog_pin1 = peripherals.GPIO5;
+    let mut pin1 = adc1_config.enable_pin_with_cal::<_, AdcCalCurve<_>>(analog_pin1, esp_hal::analog::adc::Attenuation::_11dB);
+    let mut adc1 = esp_hal::analog::adc::Adc::new(peripherals.ADC1, adc1_config);
+    let adc1_value: u16 = adc1.read_oneshot(&mut pin1).unwrap_or_else( |_| 0);
+
+    // * 2 for the voltage divider ratio, this should be set somewhere as config or var
+    let batt_voltage: u16 = ((adc1_value as u32) * 2450 / 4095 * 2) as u16;
+    log::info!("ADC1 value, battery: {} {}", adc1_value, batt_voltage);
 
     log::info!("Embassy initialized!");
     log::info!("Start wifi init");
@@ -126,6 +139,9 @@ async fn main(_spawner: Spawner) {
             0x03, // Humidity
             (hum & 0xFF) as u8,
             ((hum >> 8) & 0xFF) as u8,
+            0x0C,
+            (batt_voltage & 0xFF) as u8,
+            ((batt_voltage >> 8) & 0xFF) as u8,
         ];
         AdStructure::encode_slice(
             &[
@@ -173,7 +189,11 @@ async fn main(_spawner: Spawner) {
         //         .unwrap();
         //     Timer::after(Duration::from_millis(10)).await;
         // };
-        Timer::after(Duration::from_secs(5)).await;
+
+
+        let timer = TimerWakeupSource::new(core::time::Duration::from_secs(29));
+        rtc.sleep_deep(&[&timer]);
+        //Timer::after(Duration::from_secs(5)).await;
     }}).await;
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/v0.23.1/examples/src/bin
