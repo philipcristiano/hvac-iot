@@ -15,17 +15,18 @@ jobs:
         id: check-for-cc
         uses: agenthunt/conventional-commit-checker-action@v2.0.0
 
-  rust:
+  rust-esp32c6:
     uses: "philipcristiano/workflows/.github/workflows/rust.yml@main"
     with:
+      working-directory: esp32c6-sensor
       setup_script: |
           curl -sL https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-linux-x64 -o tailwindcss
           chmod +x tailwindcss
           mv tailwindcss /usr/local/bin
 
-  flake:
+  flake-esp32c6:
     uses: "philipcristiano/workflows/.github/workflows/nix.yml@main"
     with:
       flakes-from-devshell: true
       script: |
-        cd esp32-c6-sensor cargo build
+        cd esp32c6-sensor; cargo build
