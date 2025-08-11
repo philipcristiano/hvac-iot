@@ -45,7 +45,7 @@ IPAddress fallback_gateway(192, 168, 1, 1);
 
 /************ MQTT Setup ***************/
 #include <MQTT.h>
-#define MQTT_HOST "192.168.1.178"
+#define MQTT_HOST "192.168.102.50"
 EthernetClient MQTTEthClient;
 MQTTClient mqtt_client(512);
 /************ Watchdg Setup ***************/
