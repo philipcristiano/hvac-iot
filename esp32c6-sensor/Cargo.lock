@@ -261,6 +261,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "embassy-embedded-hal"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1611b7a7ab5d1fbed84c338df26d56fd9bded58006ebb029075112ed2c5e039"
+dependencies = [
+ "embassy-futures",
+ "embassy-hal-internal",
+ "embassy-sync 0.7.0",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-storage",
+ "embedded-storage-async",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "embassy-executor"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -397,6 +414,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal-bus"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "513e0b3a8fb7d3013a8ae17a834283f170deaf7d0eeab0a7c1a36ad4dd356d22"
+dependencies = [
+ "critical-section",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+]
+
+[[package]]
 name = "embedded-io"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -509,7 +537,7 @@ dependencies = [
  "delegate",
  "digest",
  "document-features",
- "embassy-embedded-hal",
+ "embassy-embedded-hal 0.3.1",
  "embassy-futures",
  "embassy-sync 0.6.2",
  "embedded-can",
@@ -733,10 +761,14 @@ dependencies = [
  "bt-hci",
  "critical-section",
  "defmt 0.3.100",
+ "embassy-embedded-hal 0.4.0",
  "embassy-executor",
  "embassy-futures",
  "embassy-sync 0.7.0",
  "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-hal-bus",
  "embedded-io",
  "embedded-io-async",
  "esp-alloc",
@@ -748,6 +780,7 @@ dependencies = [
  "esp-wifi",
  "heapless",
  "log",
+ "scd4x",
  "sht4x-ng",
  "smart-leds",
  "smart-leds-trait",
@@ -1300,6 +1333,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
+name = "scd4x"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "455974f1daa137284e9e282362d1074f004028a77ee84c6bb1508c9e89646153"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "log",
+ "sensirion-i2c 0.4.0",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1312,6 +1357,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fb9009045fc9b4e9e37e670cc407baf85c216ebac2fb0932d4b6f490445bafc"
 dependencies = [
  "embedded-hal 1.0.0",
+]
+
+[[package]]
+name = "sensirion-i2c"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "640a03c95c176226cf159ae2727f7fe3245546022639d61459af46d2878aec06"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
 ]
 
 [[package]]
@@ -1356,7 +1411,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "fixed",
- "sensirion-i2c",
+ "sensirion-i2c 0.3.0",
 ]
 
 [[package]]

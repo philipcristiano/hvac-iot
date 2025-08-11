@@ -10,24 +10,20 @@ use esp_hal::clock::CpuClock;
 use bt_hci::controller::ExternalController;
 use log::info;
 
+use esp_hal::analog::adc::AdcCalCurve;
 use esp_hal::i2c::master;
-use esp_hal::{delay::Delay, main, rmt::Rmt};
-use esp_hal::{rng::Rng, timer::timg::TimerGroup};
-use esp_wifi::{EspWifiController, ble::controller::BleConnector, init};
+use esp_hal::rmt::Rmt;
+use esp_hal::rtc_cntl::{Rtc, sleep::TimerWakeupSource};
+use esp_hal::timer::timg::TimerGroup;
+use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
+use esp_wifi::ble::controller::BleConnector;
 use sht4x_ng::Sht4x;
-use esp_hal_smartled::{smart_led_buffer, SmartLedsAdapter};
-use esp_hal::analog::adc::{AdcCalCurve, Attenuation};
-use esp_hal::rtc_cntl::{Rtc, SocResetReason, sleep::TimerWakeupSource};
-use smart_leds::{
-    brightness, gamma,
-    hsv::{hsv2rgb, Hsv},
-    SmartLedsWrite, RGB8
-};
+use smart_leds::{RGB8, SmartLedsWrite};
 esp_bootloader_esp_idf::esp_app_desc!();
 const CONNECTIONS_MAX: usize = 1;
 /// Max number of L2CAP channels.
 const L2CAP_CHANNELS_MAX: usize = 2; // Signal + att
-pub const L2CAP_MTU: usize = 255;
+pub const L2CAP_MTU: usize = 1017;
 use trouble_host::prelude::*;
 const BTHOME_SVC_UUID: u16 = 0xFCD2; // BTHome service UUID
 
@@ -38,6 +34,8 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     info!("{_info}");
     loop {}
 }
+
+use scd4x::Scd4xAsync;
 
 #[esp_hal_embassy::main]
 async fn main(_spawner: Spawner) {
@@ -53,9 +51,16 @@ async fn main(_spawner: Spawner) {
         .with_sda(peripherals.GPIO6)
         .into_async();
 
+    use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice;
+    use embassy_sync::blocking_mutex::raw::NoopRawMutex;
+    use embassy_sync::mutex::Mutex;
+    let i2c_bus: embassy_sync::mutex::Mutex<NoopRawMutex, esp_hal::i2c::master::I2c<'_, _>> =
+        Mutex::new(i2c);
+
     let mut delay = embassy_time::Delay;
     let mut rtc = Rtc::new(peripherals.LPWR);
-    let mut sht40: Sht4x<_, embassy_time::Delay> = Sht4x::new(i2c);
+    let mut scd = Scd4xAsync::new(I2cDevice::new(&i2c_bus), delay.clone());
+    let mut sht40: Sht4x<_, embassy_time::Delay> = Sht4x::new(I2cDevice::new(&i2c_bus));
     //esp_alloc::heap_allocator!(73728);
 
     let timer_group0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
@@ -92,12 +97,16 @@ async fn main(_spawner: Spawner) {
 
     info!("Start bluetooth init");
 
+    let power_down_result = scd.power_down().await;
+    log::info!("Power down restul {:?}", power_down_result);
+
     // Bluetooth
     //
     let bluetooth = peripherals.BT;
     let connector = BleConnector::new(&init, bluetooth);
     let controller: ExternalController<_, 20> = ExternalController::new(connector);
-    let address: Address = Address::random([0x00, 0x04, 0x1a, 0x05, 0xe4, 0xfe]);
+    let mac = esp_hal::efuse::Efuse::mac_address();
+    let address: Address = Address::random(mac);
     info!("Our address = {:?}", address);
 
     let mut resources: HostResources<DefaultPacketPool, 0, 0, 27> = HostResources::new();
@@ -108,17 +117,53 @@ async fn main(_spawner: Spawner) {
         ..
     } = stack.build();
     //spawner.must_spawn(ble_task(runner));
+    //
+    // Calibrate Button Setup
+    let calibrate_button_config = esp_hal::gpio::InputConfig::default();
+    let calibrate_button = esp_hal::gpio::Input::new(peripherals.GPIO18, calibrate_button_config);
 
     // LED
     //
+    //
+    let red_light = RGB8 { r: 5, g: 0, b: 0 };
+    let yellow_light = RGB8 { r: 5, g: 5, b: 0 };
+    let green_light = RGB8 { r: 0, g: 5, b: 0 };
+    let disable_light = RGB8 { r: 0, g: 0, b: 0 };
     use esp_hal::time::Rate;
     let led_pin = peripherals.GPIO2;
 
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80)).unwrap();
     let rmt_channel = rmt.channel0;
-    let rmt_buffer = smart_led_buffer!(1);
+    let rmt_buffer = smart_led_buffer!(2);
 
-    let mut led = SmartLedsAdapter::new(rmt_channel, led_pin, rmt_buffer);
+    let mut leds = SmartLedsAdapter::new(rmt_channel, led_pin, rmt_buffer);
+
+    // Button is pulled high by external resistor, button to GND
+    if calibrate_button.is_high() {
+        log::info!("Calibrate button not pressed");
+    } else {
+        log::info!("Calibrate button pressed, calibration should begin!");
+        for _ in 0..3 {
+            leds.write([red_light, red_light]).unwrap();
+            scd.measure_single_shot_non_blocking().await;
+
+            let co2_timer = TimerWakeupSource::new(core::time::Duration::from_secs(6));
+            rtc.sleep_light(&[&co2_timer]);
+            leds.write([red_light, yellow_light]).unwrap();
+            let scd_measurement_opt = scd.measurement().await;
+            let co2_timer = TimerWakeupSource::new(core::time::Duration::from_secs(55));
+            rtc.sleep_light(&[&co2_timer]);
+            leds.write([red_light, red_light]).unwrap();
+        }
+        leds.write([yellow_light, yellow_light]).unwrap();
+        scd.forced_recalibration(420).await;
+        let co2_timer = TimerWakeupSource::new(core::time::Duration::from_secs(1));
+        rtc.sleep_light(&[&co2_timer]);
+        scd.set_automatic_self_calibration(false).await;
+        let co2_timer = TimerWakeupSource::new(core::time::Duration::from_secs(1));
+        rtc.sleep_light(&[&co2_timer]);
+        leds.write([green_light, green_light]).unwrap();
+    }
 
     //let delay = Delay::new();
     // Buffer for BTHome advertisement data
@@ -127,7 +172,27 @@ async fn main(_spawner: Spawner) {
     info!("About to start embassy join");
     let _ = join(ble_task(runner), async {
         loop {
+            let mut co2: u16 = 0;
             info!("beginning loop iter");
+            //let power_down_result = scd.power_down().await;
+            //log::info!("Power down result {:?}", power_down_result);
+            scd.wake_up().await;
+            Timer::after(Duration::from_millis(30)).await;
+            match scd.measure_single_shot_non_blocking().await {
+                Ok(_) => {
+                    log::info!("Measuring single shot");
+                    //Timer::after(Duration::from_secs(6)).await;
+                    let co2_timer = TimerWakeupSource::new(core::time::Duration::from_secs(6));
+                    rtc.sleep_light(&[&co2_timer]);
+                    let scd_measurement_opt = scd.measurement().await;
+                    if let Ok(scd_measuremenet) = scd_measurement_opt {
+                        log::info!("Measure {}", scd_measuremenet.co2);
+                        co2 = scd_measuremenet.co2;
+                    }
+                }
+
+                Err(e) => log::error!("Error with CO2 single shot {e:?}"),
+            }
             //let mut data;
             let serial = sht40.serial_number(&mut delay).await.unwrap();
             let measure = sht40
@@ -152,9 +217,12 @@ async fn main(_spawner: Spawner) {
                 0x03, // Humidity
                 (hum & 0xFF) as u8,
                 ((hum >> 8) & 0xFF) as u8,
-                0x0C,
+                0x0C, // Voltage
                 (batt_voltage & 0xFF) as u8,
                 ((batt_voltage >> 8) & 0xFF) as u8,
+                0x12, // CO2
+                (co2 & 0xFF) as u8,
+                ((co2 >> 8) & 0xFF) as u8,
             ];
             AdStructure::encode_slice(
                 &[
@@ -172,7 +240,7 @@ async fn main(_spawner: Spawner) {
             // Stop previous advertisement if any
             info!("Starting advertiser");
             let mut adv_param = trouble_host::advertise::AdvertisementParameters::default();
-            adv_param.tx_power = trouble_host::advertise::TxPower::Plus20dBm;
+            //adv_param.tx_power = trouble_host::advertise::TxPower::Plus7dBm;
             adv_param.timeout = Some(Duration::from_secs(1));
             let advertiser = peripheral
                 .advertise(
@@ -188,19 +256,24 @@ async fn main(_spawner: Spawner) {
             } else {
                 info!("[adv] advertise error")
             }
-            let blip_light = RGB8{r: 5, g: 0, b: 0};
-            led.write([blip_light]).unwrap();
+            let blip_light = RGB8 { r: 5, g: 0, b: 0 };
+            leds.write([blip_light, disable_light]).unwrap();
             Timer::after(Duration::from_millis(10)).await;
-            let disable_light = RGB8{r: 0, g: 0, b: 0};
-            led.write([disable_light]).unwrap();
+            leds.write([disable_light, disable_light]).unwrap();
 
-            let timer = TimerWakeupSource::new(core::time::Duration::from_secs(29));
+            let power_down_result = scd.power_down().await;
+            log::info!("Power down result {:?}", power_down_result);
+            let mut sleep_time = 59;
+            if co2 > 0 {
+                sleep_time = sleep_time + 120;
+            }
+
+            let timer = TimerWakeupSource::new(core::time::Duration::from_secs(sleep_time));
             rtc.sleep_deep(&[&timer]);
             //Timer::after(Duration::from_secs(5)).await;
         }
     })
     .await;
-
 }
 
 async fn ble_task<C: Controller, P: PacketPool>(mut runner: Runner<'_, C, P>) {
