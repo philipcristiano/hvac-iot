@@ -1,6 +1,12 @@
 #![no_std]
 #![no_main]
 
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    info!("{_info}");
+    loop {}
+}
+
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
 use embassy_time::{Duration, Timer};
@@ -28,12 +34,6 @@ use trouble_host::prelude::*;
 const BTHOME_SVC_UUID: u16 = 0xFCD2; // BTHome service UUID
 
 extern crate alloc;
-
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    info!("{_info}");
-    loop {}
-}
 
 use scd4x::Scd4xAsync;
 
