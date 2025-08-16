@@ -53,7 +53,7 @@ static_cell = { version = "2.1.0", features = [] }
 smart-leds = "0.4.0"
 esp-hal-smartled = { version = "0.15.0", git = "https://github.com/esp-rs/esp-hal-community", package = "esp-hal-smartled", ref = "955208442e848eb4ff77316fc21488348d1bb1d0"}
 sht4x-ng = { version = "0.2.2", features = ["async"] }
-bt-hci = "0.3.2"
+bt-hci = "0.4.0"
 trouble-host = "0.2.4"
 embassy-sync = "0.7.0"
 embassy-futures = "0.1.1"
