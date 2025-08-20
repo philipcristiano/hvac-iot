@@ -24,7 +24,7 @@ esp-wifi = { version = "0.15.0", default-features = false, features = [
   "builtin-scheduler",
   #"preempt-extern"
 ] }
-heapless = { version = "0.8.0", default-features = false }
+heapless = { version = "0.9.0", default-features = false }
 log = { version = "0.4.21" }
 smoltcp = { version = "0.12.0", default-features = false, features = [
   "medium-ethernet",
