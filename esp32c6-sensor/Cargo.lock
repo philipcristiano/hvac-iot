@@ -73,12 +73,12 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa7f7c19df9648c1da4f5356c4256533e38bd65633b6a41654922475a1c6d777"
 dependencies = [
- "embassy-sync 0.7.1",
+ "embassy-sync 0.7.2",
  "embassy-time",
  "embedded-io",
  "embedded-io-async",
  "futures-intrusive",
- "heapless",
+ "heapless 0.8.0",
  "uuid",
 ]
 
@@ -241,7 +241,7 @@ checksum = "8578db196d74db92efdd5ebc546736dac1685499ee245b22eff92fa5e4b57945"
 dependencies = [
  "embassy-futures",
  "embassy-hal-internal",
- "embassy-sync 0.7.1",
+ "embassy-sync 0.7.2",
  "embassy-time",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
@@ -259,7 +259,7 @@ checksum = "d1611b7a7ab5d1fbed84c338df26d56fd9bded58006ebb029075112ed2c5e039"
 dependencies = [
  "embassy-futures",
  "embassy-hal-internal",
- "embassy-sync 0.7.1",
+ "embassy-sync 0.7.2",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
@@ -317,21 +317,21 @@ dependencies = [
  "embedded-io-async",
  "futures-sink",
  "futures-util",
- "heapless",
+ "heapless 0.8.0",
 ]
 
 [[package]]
 name = "embassy-sync"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03c372c90d3525a648684fa1c131decaf7d9ff181030db09c876fad6043443b9"
+checksum = "73974a3edbd0bd286759b3d483540f0ebef705919a5f56f4fc7709066f71689b"
 dependencies = [
  "cfg-if",
  "critical-section",
  "embedded-io-async",
  "futures-core",
  "futures-sink",
- "heapless",
+ "heapless 0.8.0",
 ]
 
 [[package]]
@@ -367,7 +367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc55c748d16908a65b166d09ce976575fb8852cf60ccd06174092b41064d8f83"
 dependencies = [
  "embassy-executor",
- "heapless",
+ "heapless 0.8.0",
 ]
 
 [[package]]
@@ -755,7 +755,7 @@ dependencies = [
  "embassy-embedded-hal 0.4.0",
  "embassy-executor",
  "embassy-futures",
- "embassy-sync 0.7.1",
+ "embassy-sync 0.7.2",
  "embassy-time",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
@@ -769,7 +769,7 @@ dependencies = [
  "esp-hal-smartled",
  "esp-println",
  "esp-wifi",
- "heapless",
+ "heapless 0.9.1",
  "log",
  "scd4x",
  "sht4x-ng",
@@ -960,6 +960,16 @@ name = "heapless"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bfb9eb618601c89945a70e254898da93b13be0388091d42117462b265bb3fad"
+dependencies = [
+ "hash32",
+ "stable_deref_trait",
+]
+
+[[package]]
+name = "heapless"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1edcd5a338e64688fbdcb7531a846cfd3476a54784dcb918a0844682bc7ada5"
 dependencies = [
  "hash32",
  "stable_deref_trait",
@@ -1432,7 +1442,7 @@ dependencies = [
  "bitflags 1.3.2",
  "byteorder",
  "cfg-if",
- "heapless",
+ "heapless 0.8.0",
  "managed",
 ]
 
@@ -1543,11 +1553,11 @@ checksum = "c18ffc4e0c94e3b322116e6aaf8b6323fe3a42a9a9d1b6631606c16eb2885a2d"
 dependencies = [
  "bt-hci",
  "embassy-futures",
- "embassy-sync 0.7.1",
+ "embassy-sync 0.7.2",
  "embassy-time",
  "embedded-io",
  "futures",
- "heapless",
+ "heapless 0.8.0",
  "rand_core 0.6.4",
  "static_cell",
  "trouble-host-macros",
