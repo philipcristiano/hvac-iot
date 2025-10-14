@@ -683,7 +683,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "70f86494-0a21-4185-966a-4098c4c870ac")
-		(property "Reference" "C1"
+		(property "Reference" "C?"
 			(at 161.29 80.0099 0)
 			(effects
 				(font
@@ -735,6 +735,12 @@
 			(uuid "e9c81c98-4ecc-4416-bf10-b5759ce8ecbe")
 		)
 		(instances
+			(project "sht4x"
+				(path "/d7e596fe-744d-45f4-be6f-19b42f6fb9f0"
+					(reference "C?")
+					(unit 1)
+				)
+			)
 			(project "esp32-ble-sensor"
 				(path "/f633b347-3747-472c-8d1d-c36902e3b057/53c8d859-bbc4-4810-814c-ad11c4902857"
 					(reference "C1")
@@ -753,7 +759,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "967f5298-b4a3-45ac-b04a-96fc86e897c9")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR?"
 			(at 143.51 99.06 0)
 			(effects
 				(font
@@ -801,6 +807,12 @@
 			(uuid "9fde7b7b-927c-49c2-9979-14191e1b94a7")
 		)
 		(instances
+			(project "sht4x"
+				(path "/d7e596fe-744d-45f4-be6f-19b42f6fb9f0"
+					(reference "#PWR?")
+					(unit 1)
+				)
+			)
 			(project "esp32-ble-sensor"
 				(path "/f633b347-3747-472c-8d1d-c36902e3b057/53c8d859-bbc4-4810-814c-ad11c4902857"
 					(reference "#PWR05")
@@ -819,7 +831,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a1450afa-d448-449d-95b1-d9e838dffd0a")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR?"
 			(at 143.51 74.93 0)
 			(effects
 				(font
@@ -867,6 +879,12 @@
 			(uuid "aafd766a-bd0e-4f50-a28d-5d4d88a9cbef")
 		)
 		(instances
+			(project "sht4x"
+				(path "/d7e596fe-744d-45f4-be6f-19b42f6fb9f0"
+					(reference "#PWR?")
+					(unit 1)
+				)
+			)
 			(project "esp32-ble-sensor"
 				(path "/f633b347-3747-472c-8d1d-c36902e3b057/53c8d859-bbc4-4810-814c-ad11c4902857"
 					(reference "#PWR06")
@@ -885,7 +903,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c5270138-5e4f-46f8-bd58-ecbdabfda07f")
-		(property "Reference" "U2"
+		(property "Reference" "U?"
 			(at 147.32 80.0099 0)
 			(effects
 				(font
@@ -945,6 +963,12 @@
 			(uuid "b449ebad-e4a8-4969-8bfc-67d535a1b33f")
 		)
 		(instances
+			(project "sht4x"
+				(path "/d7e596fe-744d-45f4-be6f-19b42f6fb9f0"
+					(reference "U?")
+					(unit 1)
+				)
+			)
 			(project "esp32-ble-sensor"
 				(path "/f633b347-3747-472c-8d1d-c36902e3b057/53c8d859-bbc4-4810-814c-ad11c4902857"
 					(reference "U2")
@@ -953,4 +977,10 @@
 			)
 		)
 	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )

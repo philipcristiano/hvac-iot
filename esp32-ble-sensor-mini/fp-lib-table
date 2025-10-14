@@ -2,4 +2,7 @@
   (version 7)
   (lib (name "Library")(type "KiCad")(uri "${KIPRJMOD}/Library.pretty")(options "")(descr ""))
   (lib (name "footprints")(type "KiCad")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/LM66200DRLR/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "SparkFun-Qwiic")(type "KiCad")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/SparkFun_Qwiic_Logo_-_KiCad/SparkFun-Qwiic.pretty")(options "")(descr ""))
+  (lib (name "PRT-14417 Qwiic")(type "KiCad")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/PRT-14417 Qwiic.pretty")(options "")(descr ""))
+  (lib (name "PRT-14417")(type "KiCad")(uri "/Users/philipcristiano/gits/hvac-iot/libraries/PRT-14417.pretty")(options "")(descr ""))
 )
