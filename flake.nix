@@ -20,10 +20,6 @@
                 (rust-bin.stable.latest.default.override { targets = [ "riscv32imac-unknown-none-elf" ]; })
                 rust-analyzer
                 espflash
-            ] ++
-              pkgs.lib.optionals pkgs.stdenv.isDarwin [
-                darwin.apple_sdk.frameworks.Security # Should only be for darwin
-                darwin.apple_sdk.frameworks.SystemConfiguration
             ];
             shellHook = ''
             '';
