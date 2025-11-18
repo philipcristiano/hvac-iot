@@ -21,7 +21,7 @@ use esp_hal::i2c::master;
 use esp_hal::rmt::Rmt;
 use esp_hal::rtc_cntl::{Rtc, sleep::TimerWakeupSource};
 use esp_hal::timer::timg::TimerGroup;
-//use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
+use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
 use esp_radio::ble::controller::BleConnector;
 use sht4x_ng::Sht4x;
 use smart_leds::{RGB8, SmartLedsWrite};
@@ -140,9 +140,9 @@ async fn main(_spawner: Spawner) {
 
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80)).unwrap();
     let rmt_channel = rmt.channel0;
-    //let rmt_buffer = smart_led_buffer!(2);
+    let mut rmt_buffer = smart_led_buffer!(2);
 
-    //let mut leds = SmartLedsAdapter::new(rmt_channel, led_pin, rmt_buffer);
+    let mut leds = SmartLedsAdapter::new(rmt_channel, led_pin, &mut rmt_buffer);
 
     // Button is pulled high by external resistor, button to GND
     //if calibrate_button.is_high() {
@@ -264,9 +264,9 @@ async fn main(_spawner: Spawner) {
                 info!("[adv] advertise error")
             }
             let blip_light = RGB8 { r: 5, g: 0, b: 0 };
-            //leds.write([blip_light, disable_light]).unwrap();
-            Timer::after(Duration::from_millis(10)).await;
-            //leds.write([disable_light, disable_light]).unwrap();
+            leds.write([blip_light, disable_light]).unwrap();
+            Timer::after(Duration::from_millis(5)).await;
+            leds.write([disable_light, disable_light]).unwrap();
 
             //let power_down_result = scd.power_down().await;
             //log::info!("Power down result {:?}", power_down_result);

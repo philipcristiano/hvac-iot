@@ -15,9 +15,9 @@ test = false
 [dependencies]
 embedded-io = "0.6.1"
 embedded-io-async = "0.6.1"
-esp-alloc = { version = "0.8.0" }
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c6", "unstable"]  }
-esp-radio = { version = "0.15.0", default-features = false, features = [
+esp-alloc = { version = "0.9.0" }
+esp-hal = { version = "1.0.0", features = ["esp32c6", "unstable"]  }
+esp-radio = { version = "0.17.0", default-features = false, features = [
   "ble",
   "esp-alloc",
   "esp32c6",
@@ -49,11 +49,11 @@ critical-section = {version = "1.2.0", features = []}
 embassy-executor = { version = "0.9.0", features = [] }
 embassy-time = { version = "0.5.0", features = ["generic-queue-8"] }
 #esp-hal-embassy = { version = "0.9.0", features = ["esp32c6"] }
-esp-rtos = { version = "0.0.1", features = ["esp-radio", "embassy", "log-04", "esp32c6"] }
+esp-rtos = { version = "0.2.0", features = ["esp-radio", "embassy", "log-04", "esp32c6"] }
 static_cell = { version = "2.1.0", features = [] }
 
 smart-leds = "0.4.0"
-#esp-hal-smartled = { version = "0.15.0"}
+esp-hal-smartled = { version = "0.17.0"}
 sht4x-ng = { version = "0.2.2", features = ["async"] }
 bt-hci = "0.6.0"
 trouble-host = "0.4.0"
@@ -85,13 +85,15 @@ lto              = 'fat'
 opt-level        = 's'
 overflow-checks  = false
 
-[patch.crates-io]
-esp-hal = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
-esp-backtrace = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
-esp-radio = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
-esp-bootloader-esp-idf = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
-esp-rtos = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
-esp-alloc = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+ [patch.crates-io]
+# esp-hal-smartled waiting for new release > 0.16.0
+esp-hal-smartled = {rev = "d9239ac49c7b383689fbbb1762db021e2a7a41a2", git = "https://github.com/esp-rs/esp-hal-community.git"}
+# esp-hal = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+# esp-backtrace = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+# esp-radio = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+# esp-bootloader-esp-idf = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+# esp-rtos = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
+# esp-alloc = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
 # esp-hal-embassy = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
 #esp-hal-preempt = {rev = "b66bc551e622c6de14feda595f66f380e1b7c20c", git = "https://github.com/esp-rs/esp-hal.git"}
 
