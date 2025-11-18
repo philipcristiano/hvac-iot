@@ -21,6 +21,9 @@ jobs:
       working-directory: esp32c6-sensor
       setup_script: |
           rustup target add riscv32imac-unknown-none-elf
+      cargo-build-options: --workspace --all-features --bins --lib --tests --verbose
+      cargo-test-options: --workspace --verbose
+
 
   flake-esp32c6:
     uses: "philipcristiano/workflows/.github/workflows/nix.yml@main"
