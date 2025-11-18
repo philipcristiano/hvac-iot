@@ -540,7 +540,7 @@ dependencies = [
  "cfg-if",
  "document-features",
  "enumset",
- "esp-config 0.6.1",
+ "esp-config",
  "esp-sync",
  "linked_list_allocator",
  "rlsf",
@@ -548,30 +548,19 @@ dependencies = [
 
 [[package]]
 name = "esp-bootloader-esp-idf"
-version = "0.2.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a093dbdc64b0288baacc214c2e8c2f3f13ecbf979c36ee2f63797ecf22538f1"
+checksum = "02a56964ab5479ac20c9cf76fa3b0d3f2233b20b5d8554e81ef5d65f63c20567"
 dependencies = [
  "cfg-if",
  "document-features",
  "embedded-storage",
- "esp-config 0.5.0",
+ "esp-config",
+ "esp-hal-procmacros",
+ "esp-metadata-generated 0.3.0",
  "esp-rom-sys",
  "jiff",
  "strum",
-]
-
-[[package]]
-name = "esp-config"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abd4a8db4b72794637a25944bc8d361c3cc271d4f03987ce8741312b6b61529c"
-dependencies = [
- "document-features",
- "esp-metadata-generated 0.1.0",
- "evalexpr",
- "serde",
- "serde_yaml",
 ]
 
 [[package]]
@@ -612,7 +601,7 @@ dependencies = [
  "embedded-io-async 0.6.1",
  "embedded-io-async 0.7.0",
  "enumset",
- "esp-config 0.6.1",
+ "esp-config",
  "esp-hal-procmacros",
  "esp-metadata-generated 0.3.0",
  "esp-riscv-rt",
@@ -704,7 +693,7 @@ checksum = "6b1facf348e1e251517278fc0f5dc134e95e518251f5796cfbb532ca226a29bf"
 dependencies = [
  "cfg-if",
  "document-features",
- "esp-config 0.6.1",
+ "esp-config",
  "esp-hal",
  "esp-metadata-generated 0.3.0",
  "esp-sync",
@@ -739,7 +728,7 @@ dependencies = [
  "embedded-io-async 0.6.1",
  "embedded-io-async 0.7.0",
  "esp-alloc",
- "esp-config 0.6.1",
+ "esp-config",
  "esp-hal",
  "esp-hal-procmacros",
  "esp-metadata-generated 0.3.0",
@@ -796,7 +785,7 @@ dependencies = [
  "embassy-sync 0.7.2",
  "embassy-time-driver",
  "embassy-time-queue-utils",
- "esp-config 0.6.1",
+ "esp-config",
  "esp-hal",
  "esp-hal-procmacros",
  "esp-metadata-generated 0.3.0",
@@ -934,12 +923,6 @@ dependencies = [
  "critical-section",
  "vcell",
 ]
-
-[[package]]
-name = "evalexpr"
-version = "12.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae893d2d5e908b78f151ed89de3bfc272cdf6d368c7ed866942f98e24dea208a"
 
 [[package]]
 name = "fixed"
