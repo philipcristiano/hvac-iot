@@ -59,7 +59,7 @@ bt-hci = "0.6.0"
 trouble-host = "0.4.0"
 embassy-sync = "0.7.0"
 embassy-futures = "0.1.1"
-esp-println = { version = "0.15.0", features = ["esp32c6", "log-04"] }
+esp-println = { version = "0.16.0", features = ["esp32c6", "log-04"] }
 defmt = "1.0.0"
 esp-bootloader-esp-idf = { version = "0.2.0", features = ["esp32c6"] }
 scd4x = { version = "0.4.1", features = ["embedded-hal-async", "scd41"] }
