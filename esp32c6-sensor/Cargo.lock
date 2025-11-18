@@ -702,13 +702,13 @@ dependencies = [
 
 [[package]]
 name = "esp-println"
-version = "0.15.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e7e3ab41e96093d7fd307e93bfc88bd646a8ff23036ebf809e116b18869f719"
+checksum = "5a30e6c9fbcc01c348d46706fef8131c7775ab84c254a3cd65d0cd3f6414d592"
 dependencies = [
- "critical-section",
  "document-features",
- "esp-metadata-generated 0.1.0",
+ "esp-metadata-generated 0.3.0",
+ "esp-sync",
  "log",
  "portable-atomic",
 ]
