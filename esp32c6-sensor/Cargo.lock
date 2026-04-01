@@ -1467,13 +1467,12 @@ checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
 
 [[package]]
 name = "scd4x"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455974f1daa137284e9e282362d1074f004028a77ee84c6bb1508c9e89646153"
+checksum = "4125b72e0ab23dac0d2068c74020b05e53d16b72e78fb17c7565912fff0d8ce9"
 dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-async",
- "log",
  "sensirion-i2c 0.4.0",
 ]
 
