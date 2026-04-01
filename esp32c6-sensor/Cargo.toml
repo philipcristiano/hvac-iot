@@ -62,7 +62,7 @@ embassy-futures = "0.1.1"
 esp-println = { version = "0.16.0", features = ["esp32c6", "log-04"] }
 defmt = "1.0.0"
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32c6"] }
-scd4x = { version = "0.4.1", features = ["embedded-hal-async", "scd41"] }
+scd4x = { version = "0.5.0", features = ["embedded-hal-async", "scd41"] }
 embedded-hal-bus = { version = "0.3.0", features = ["async"] }
 embedded-hal = "1.0.0"
 embedded-hal-async = "1.0.0"
