@@ -79,6 +79,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "bt-hci"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f63b3d6f0ef006d9b87a075705d6c142b03681ad34090659647f0e227c1c667f"
+dependencies = [
+ "bt-hci-transport",
+ "btuuid",
+ "embassy-sync 0.7.2",
+ "embedded-io 0.7.1",
+ "embedded-io-async 0.7.0",
+ "futures-intrusive",
+ "heapless 0.9.2",
+]
+
+[[package]]
+name = "bt-hci-transport"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ffb9819c69cf88877f5eebc8c5ade0ab50f2bf9475bbb3eb714d66c55b0cb64"
+dependencies = [
+ "embedded-io 0.7.1",
+ "embedded-io-async 0.7.0",
+]
+
+[[package]]
 name = "btuuid"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -403,6 +428,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "embassy-sync"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7bbd85cf5a5ae56bdf26f618364af642d1d0a4e245cdd75cd9aabda382f65a81"
+dependencies = [
+ "cfg-if",
+ "critical-section",
+ "embedded-io-async 0.7.0",
+ "futures-core",
+ "futures-sink",
+ "heapless 0.9.2",
+]
+
+[[package]]
 name = "embassy-time"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -721,7 +760,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "684c4de2f8907b73c9b891fbda65286a86d34fced4b856f36a7896c211f2f265"
 dependencies = [
  "allocator-api2",
- "bt-hci",
+ "bt-hci 0.6.0",
  "cfg-if",
  "document-features",
  "embedded-io 0.6.1",
@@ -864,7 +903,7 @@ dependencies = [
 name = "esp32c6-sensor"
 version = "0.1.0"
 dependencies = [
- "bt-hci",
+ "bt-hci 0.6.0",
  "critical-section",
  "defmt",
  "embassy-embedded-hal",
@@ -1740,18 +1779,17 @@ dependencies = [
 
 [[package]]
 name = "trouble-host"
-version = "0.5.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2881b4859001fe1f48445145cda5149deac9110b1d707ec0a251b7ff6d8bdfa4"
+checksum = "19a566cc37ceaff5cc2a6ff8cc02debd1ee6b95d59ced8830d005da8b080cbe9"
 dependencies = [
- "bt-hci",
+ "bt-hci 0.10.1",
  "embassy-futures",
- "embassy-sync 0.7.2",
+ "embassy-sync 0.8.0",
  "embassy-time",
- "embedded-io 0.6.1",
+ "embedded-io 0.7.1",
  "futures",
  "heapless 0.9.2",
- "rand_core 0.6.4",
  "static_cell",
  "trouble-host-macros",
  "zerocopy",
@@ -1759,9 +1797,9 @@ dependencies = [
 
 [[package]]
 name = "trouble-host-macros"
-version = "0.3.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcb85bec3a8393c22ca1a7c25c82c2d33689ab412f3487c492fd01a033ede7c2"
+checksum = "cbabd47f6c65856f670fd2a1857fb9d40f978bfc81aed431f8689b8a4506b2fe"
 dependencies = [
  "convert_case",
  "darling 0.20.11",
